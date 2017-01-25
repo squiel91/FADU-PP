@@ -4,10 +4,9 @@ import pdb
 import random
 from collections import defaultdict
 
-# inicializacion variables globales
 secciones = defaultdict(list)
 parametros = {}
-vars_instanciadas = {}
+formulas = {}
 
 class Parametro:
 	def __init__(self, nombre, minimo, maximo, decimales):
@@ -20,7 +19,7 @@ class Parametro:
 	def instanciar(self):
 		# cuidado que asi como esta nunca devuelve maximo
 		numero_random = random.uniform(self.minimo, self.maximo)
-		# truncate
+		# truncar en vez
 		self.evaluacion = round(numero_random, self.decimales)
 		return self.evaluacion
 
@@ -28,22 +27,47 @@ class Parametro:
 		self.instanciar()
 		return self.nombre + ':' + str(self.decimales) + ':' +str(self.evaluacion)
 
+class Formula:
+	def __init__(self, nombre, computo, decimales):
+		self.nombre = nombre
+		self.computo = computo
+		self.decimales = decimales if decimales else 2
+		self.evaluacion = 0
+
+	def instanciar(self, vars_instanciadas):
+		self.evaluacion = round(eval(self.computo, vars_instanciadas), self.decimales)
+		return self.evaluacion
+
+	def __str__(self):
+		self.instanciar()
+		return self.nombre + ':' + str(self.decimales) + ':' +str(self.evaluacion)
+
+
+
+def exportar_pregunta_latex(nombre_exportado, pregunta, respuesta_correcta, distractoras):
+	archivo = open(nombre_exportado + '.tex', 'w')
+	archivo.write(pregunta + '\n\n')
+	archivo.write(respuesta_correcta + '\n')
+	for distractor in distractoras:
+		archivo.write(distractor + '\n')
+	archivo.close()
+
+def exportar_pregunta_xml_eva(nombre_exportado, pregunta, respuesta_correcta, distractoras):
+	archivo = open(nombre_exportado + '.xml', 'w')
+	archivo.write(pregunta + '\n\n')
+	archivo.write(respuesta_correcta + '\n')
+	for distractor in distractoras:
+		archivo.write(distractor + '\n')
+	archivo.close()
+
+def sustituir_variables(texto, variables):
+	semi_sustituido = texto
+	for nombre, valor in variables.items():
+		semi_sustituido = semi_sustituido.replace('{' + nombre + '}', str(valor))
+	return semi_sustituido
+
 def abrir_csv(nombre_archivo):
 	return csv.reader(open(nombre_archivo), delimiter='\t')
-
-# def param(nombre, min=0, max=100, dec=1):
-
-
-# def extraer_variables(cuerpo, variables):
-# 	while True:
-# 		comienzo = cuerpo.find('param(')
-# 		if comienzo >= 0:
-# 			break
-# 		fin = cuerpo[comienzo:].find(')')
-# 		variables = call(cuerpo[comienzo:fin])
-# 		cuerpo = cuerpo[:comienzo -1] + '{{' + nombre_variable + '}}' + cuerpo[fin + 1:]
-
-# def computar_formulas():
 
 def pregunta(cuerpo):
 	if len(cuerpo) != 1:
@@ -57,7 +81,7 @@ def respuesta(cuerpo):
 
 def distractor(cuerpo):
 	if len(cuerpo) != 1:
-		raise Exception('Dstractor mal especificado.')
+		raise Exception('Distractor mal especificado.')
 	secciones['distractores'] += [cuerpo[0]]
 
 def parametro(cuerpo):
@@ -78,23 +102,26 @@ def parametro(cuerpo):
 			decimales = valor
 		else:
 			raise Exception('Parametro desconocido: ' + label)
-	parametros['nombre'] = Parametro(nombre, minimo, maximo, decimales)
-
+	parametros[nombre] = Parametro(nombre, minimo, maximo, decimales)
 
 def computar(cuerpo):
-	print('computar')
+	if len(cuerpo) <= 1:
+		raise Exception('computar mal especificado.')
+	nombre = cuerpo[0]
+	computo = cuerpo[1]
+	decimales = None
+	if len(cuerpo) > 2:
+		if cuerpo[2].lower() == 'decimales':
+			decimales = int(cuerpo[3])
+		else:
+			raise Exception('Parametro desconocido')
+	formulas[nombre] = Formula(nombre, computo, decimales)
 
 
-def main(in_nombre_archivo):
-	print(in_nombre_archivo)
-	secciones = {}
-	variables = {}
-	vars_instanciadas = {}
-
+def main(in_nombre_archivo, out_nombre_archivo):
 	lector_csv = abrir_csv(in_nombre_archivo)
 	for linea_seccion in lector_csv:
 		if len(linea_seccion) > 0:
-			# pdb.set_trace()
 			tag = linea_seccion[0].lower()
 			cuerpo = linea_seccion[1:]
 			if tag == 'pregunta':
@@ -108,24 +135,53 @@ def main(in_nombre_archivo):
 			elif tag == 'computar':
 				computar(cuerpo)
 
-		for k in parametros.values():
-			print(k)
 
-		# 	if tag == 'pregunta':
-		# 		cuerpo = extraer_variables(cuerpo, variables)
-		# 		cuerpo = computar_formulas(cuerpo, variables)
-		# 		seciones[tag] = cuerpo
-		# 	elif tag == 'respuesta': 
-		# 		# leer pregunta, leer variables
-		# 		# sustituir valores, extraer variables
-		# 	elif tag == 'distractora': 
+	vars_instanciadas = {}
+	for nombre, param in parametros.items():
+		vars_instanciadas[nombre] = param.instanciar()
+
+	vars_instanciadas_backup = vars_instanciadas.copy()
+
+	form_instanciadas = {}
+	for nombre, form in formulas.items():
+		form_instanciadas[nombre] = form.instanciar(vars_instanciadas)
+
+	vars_instanciadas = vars_instanciadas_backup
+
+	variables = {**vars_instanciadas, **form_instanciadas}
+
+	print('Pregunta:')
+	print(sustituir_variables(secciones['pregunta'], variables))
+
+	print('Respuesta:')
+	print(sustituir_variables(secciones['respuesta'], variables))
+
+	print('Distractores:')
+	for ditractor in secciones['distractores']:
+		print(sustituir_variables(ditractor, variables))
+
+	exportar_pregunta_latex(
+		out_nombre_archivo, 
+		sustituir_variables(secciones['pregunta'], variables), 
+		sustituir_variables(secciones['respuesta'], variables), 
+		[sustituir_variables(d, variables) for d in secciones['distractores']]
+	)
+	exportar_pregunta_xml_eva(
+		out_nombre_archivo, 
+		sustituir_variables(secciones['pregunta'], variables), 
+		sustituir_variables(secciones['respuesta'], variables), 
+		[sustituir_variables(d, variables) for d in secciones['distractores']]
+	)
+
 
 if __name__ == "__main__": 
 	parser = argparse.ArgumentParser(description="Procesa ejercicios parametrizados.")
-	parser.add_argument('nombre_archivo', 
+	parser.add_argument('nombre_archivo_entrada', 
 						help='Nombre del archivo parametriazable de entrada.')
+	parser.add_argument('nombre_archivo_salida', 
+						help='Nombre del archivo de salida (una instancia).')
 	args = parser.parse_args()
 	
-	main(args.nombre_archivo)
+	main(args.nombre_archivo_entrada, args.nombre_archivo_salida)
 
 

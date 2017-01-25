@@ -6,5 +6,5 @@ distractor	{incorrecto2} m2
 parametro	ancho	maximo	2	minimo	3	decimales	1
 parametro	largo	maximo	5	minimo	10	decimales	2
 computar	correcto	largo*ancho	decimales	1
-computar	incorrecto1	largo*ancho	decimales	1
-computar	incorrecto2	largo*ancho	decimales	1
+computar	incorrecto1	largo*largo
+computar	incorrecto2	ancho*ancho	decimales	1
