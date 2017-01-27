@@ -1,70 +1,11 @@
 import argparse
 import csv
 import pdb
-import random
-from collections import defaultdict
+from ejercicio import Ejercicio
 
 secciones = defaultdict(list)
 parametros = {}
 formulas = {}
-
-class Parametro:
-	def __init__(self, nombre, minimo, maximo, decimales):
-		self.nombre = nombre
-		self.minimo = minimo if minimo else 0
-		self.maximo = maximo if maximo else 100
-		self.decimales = decimales if decimales else 2
-		self.evaluacion = 0
-
-	def instanciar(self):
-		# cuidado que asi como esta nunca devuelve maximo
-		numero_random = random.uniform(self.minimo, self.maximo)
-		# truncar en vez
-		self.evaluacion = round(numero_random, self.decimales)
-		return self.evaluacion
-
-	def __str__(self):
-		self.instanciar()
-		return self.nombre + ':' + str(self.decimales) + ':' +str(self.evaluacion)
-
-class Formula:
-	def __init__(self, nombre, computo, decimales):
-		self.nombre = nombre
-		self.computo = computo
-		self.decimales = decimales if decimales else 2
-		self.evaluacion = 0
-
-	def instanciar(self, vars_instanciadas):
-		self.evaluacion = round(eval(self.computo, vars_instanciadas), self.decimales)
-		return self.evaluacion
-
-	def __str__(self):
-		self.instanciar()
-		return self.nombre + ':' + str(self.decimales) + ':' +str(self.evaluacion)
-
-
-
-def exportar_pregunta_latex(nombre_exportado, pregunta, respuesta_correcta, distractoras):
-	archivo = open(nombre_exportado + '.tex', 'w')
-	archivo.write(pregunta + '\n\n')
-	archivo.write(respuesta_correcta + '\n')
-	for distractor in distractoras:
-		archivo.write(distractor + '\n')
-	archivo.close()
-
-def exportar_pregunta_xml_eva(nombre_exportado, pregunta, respuesta_correcta, distractoras):
-	archivo = open(nombre_exportado + '.xml', 'w')
-	archivo.write(pregunta + '\n\n')
-	archivo.write(respuesta_correcta + '\n')
-	for distractor in distractoras:
-		archivo.write(distractor + '\n')
-	archivo.close()
-
-def sustituir_variables(texto, variables):
-	semi_sustituido = texto
-	for nombre, valor in variables.items():
-		semi_sustituido = semi_sustituido.replace('{' + nombre + '}', str(valor))
-	return semi_sustituido
 
 def abrir_csv(nombre_archivo):
 	return csv.reader(open(nombre_archivo), delimiter='\t')
