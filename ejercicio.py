@@ -1,9 +1,16 @@
 import random
 
+def sustituir_variables(texto, variables):
+	semi_sustituido = texto
+	for nombre, valor in variables.items():
+		semi_sustituido = semi_sustituido.replace('{' + nombre + '}', str(valor))
+	return semi_sustituido
+
 class Ejercicio:
-	def __init__(self, titulo, problema, respuesta, distractoras):
+
+	def __init__(self):
 		self.titulo = None
-		self.problem = None
+		self.problema = None
 		self.respuesta = None
 		self.distractores = []
 
@@ -30,6 +37,17 @@ class Ejercicio:
 		formula = Formula(nombre, computo, decimales)
 		self.formulas[nombre] = formula
 
+	def instanciar(self):
+		nueva_instancia = Instancia(
+				self.titulo, 
+				self.problema, 
+				self.respuesta, 
+				self.distractores, 
+				self.parametros, 
+				self.formulas
+			)
+
+		return nueva_instancia
 
 	class Parametro:
 		def __init__(self, nombre, minimo, maximo, decimales):
@@ -65,23 +83,41 @@ class Ejercicio:
 			self.instanciar()
 			return self.nombre + ':' + str(self.decimales) + ':' +str(self.evaluacion)
 
-	def exportar_latex(self, nombre_exportado):
-		archivo = open(nombre_exportado + '.tex', 'w')
-		archivo.write(pregunta + '\n\n')
-		archivo.write(respuesta + '\n')
-		for distractor in distractoras:
-			archivo.write(distractor + '\n')
-		archivo.close()
+	class Instancia:
+		def __init__(self, titulo, problema, respuesta, distractores, parametros, formulas):
+			vars_instanciadas = {}
+			for nombre, param in self.parametros.items():
+				vars_instanciadas[nombre] = param.instanciar()
 
-def sustituir_variables(texto, variables):
-	semi_sustituido = texto
-	for nombre, valor in variables.items():
-		semi_sustituido = semi_sustituido.replace('{' + nombre + '}', str(valor))
-	return semi_sustituido
-	# def exportar_xml_eva(self, nombre_exportado):
-	# 	archivo = open(nombre_exportado + '.xml', 'w')
-	# 	archivo.write(pregunta + '\n\n')
-	# 	archivo.write(respuesta + '\n')
-	# 	for distractor in distractoras:
-	# 		archivo.write(distractor + '\n')
-	# 	archivo.close()
+			vars_instanciadas_backup = vars_instanciadas.copy()
+
+			form_instanciadas = {}
+			for nombre, form in self.formulas.items():
+				form_instanciadas[nombre] = form.instanciar(vars_instanciadas)
+
+			vars_instanciadas = vars_instanciadas_backup
+
+			variables = {**vars_instanciadas, **form_instanciadas}
+
+			self.titulo = titulo
+			self.problema = sustituir_variables(problema, variables)
+			self.respuesta = sustituir_variables(secciones['respuesta'], variables)
+			self.distractores = [sustituir_variables(d, variables) for d in secciones['distractores']]
+
+			random.shuffle(self.distractores)
+
+			self.posicion_respuesta = random.randint(0,len(self.distractores))
+
+			self.opciones = self.distractores[:posicion_respuesta] + [self.respuesta] + self.distractores[posicion_respuesta:]
+
+		def exportar_latex(self, nombre_exportado):
+			archivo = open(nombre_exportado + '.tex', 'w')
+			instancia_ejercicio = problema.instanciar()
+			archivo.write(instancia.pregunta + '\n\n')
+			archivo.write(instancia.respuesta + '\n')
+			for i in range(self.opciones):
+				archivo.write('{}) {}\n'.format(chr(i), self.opciones[i]))
+			archivo.close()
+	
+		def exportar_xml_eva(self, nombre_exportado):
+			pass

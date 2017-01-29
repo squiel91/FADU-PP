@@ -3,27 +3,25 @@ import csv
 import pdb
 from ejercicio import Ejercicio
 
-secciones = defaultdict(list)
-parametros = {}
-formulas = {}
+ejercicio = Ejercicio()
 
 def abrir_csv(nombre_archivo):
 	return csv.reader(open(nombre_archivo), delimiter='\t')
 
-def pregunta(cuerpo):
+def problema(cuerpo):
 	if len(cuerpo) != 1:
 		raise Exception('Pregunta mal especificada.')
-	secciones['pregunta'] = cuerpo[0]
+	ejercicio.set_problema(cuerpo[0])
 
 def respuesta(cuerpo):
 	if len(cuerpo) != 1:
 		raise Exception('Respuesta mal especificada.')
-	secciones['respuesta'] = cuerpo[0]
+	ejercicio.set_respuesta(cuerpo[0])
 
 def distractor(cuerpo):
 	if len(cuerpo) != 1:
 		raise Exception('Distractor mal especificado.')
-	secciones['distractores'] += [cuerpo[0]]
+	ejercicio.add_distractor(cuerpo[0])
 
 def parametro(cuerpo):
 	if len(cuerpo) <= 1:
@@ -43,7 +41,7 @@ def parametro(cuerpo):
 			decimales = valor
 		else:
 			raise Exception('Parametro desconocido: ' + label)
-	parametros[nombre] = Parametro(nombre, minimo, maximo, decimales)
+	ejercicio.add_parametro(nombre, minimo, maximo, decimales)
 
 def computar(cuerpo):
 	if len(cuerpo) <= 1:
@@ -56,7 +54,7 @@ def computar(cuerpo):
 			decimales = int(cuerpo[3])
 		else:
 			raise Exception('Parametro desconocido')
-	formulas[nombre] = Formula(nombre, computo, decimales)
+	ejercicio.add_formula(nombre, computo, decimales)
 
 
 def main(in_nombre_archivo, out_nombre_archivo):
@@ -75,54 +73,20 @@ def main(in_nombre_archivo, out_nombre_archivo):
 				parametro(cuerpo)
 			elif tag == 'computar':
 				computar(cuerpo)
-
-
-	vars_instanciadas = {}
-	for nombre, param in parametros.items():
-		vars_instanciadas[nombre] = param.instanciar()
-
-	vars_instanciadas_backup = vars_instanciadas.copy()
-
-	form_instanciadas = {}
-	for nombre, form in formulas.items():
-		form_instanciadas[nombre] = form.instanciar(vars_instanciadas)
-
-	vars_instanciadas = vars_instanciadas_backup
-
-	variables = {**vars_instanciadas, **form_instanciadas}
-
-	print('Pregunta:')
-	print(sustituir_variables(secciones['pregunta'], variables))
-
-	print('Respuesta:')
-	print(sustituir_variables(secciones['respuesta'], variables))
-
-	print('Distractores:')
-	for ditractor in secciones['distractores']:
-		print(sustituir_variables(ditractor, variables))
-
-	exportar_pregunta_latex(
-		out_nombre_archivo, 
-		sustituir_variables(secciones['pregunta'], variables), 
-		sustituir_variables(secciones['respuesta'], variables), 
-		[sustituir_variables(d, variables) for d in secciones['distractores']]
-	)
-	exportar_pregunta_xml_eva(
-		out_nombre_archivo, 
-		sustituir_variables(secciones['pregunta'], variables), 
-		sustituir_variables(secciones['respuesta'], variables), 
-		[sustituir_variables(d, variables) for d in secciones['distractores']]
-	)
+	ejercicio.exportar
 
 
 if __name__ == "__main__": 
-	parser = argparse.ArgumentParser(description="Procesa ejercicios parametrizados.")
-	parser.add_argument('nombre_archivo_entrada', 
-						help='Nombre del archivo parametriazable de entrada.')
-	parser.add_argument('nombre_archivo_salida', 
-						help='Nombre del archivo de salida (una instancia).')
+	parser = argparse.ArgumentParser(description="Crea prueba a partir de los ejercicios parametrizados")
+	parser.add_argument('titulo', help='Titulo de la prueba')
+	parser.add_argument('ejercicios_parametrizados', nargs='+', 
+						help='Lista de ejercicios parametrizados.')
+	parser.add_argument('--cantidad', type=int, help='Cantidad de pruebas')
+	parser.add_argument('--pdf', action="store_true", help='Exportacion a PDF')
+	parser.add_argument('--eva', action="store_true", help='Para importar a entorno EVA')
+	parser.add_argument('--encabezado', help='Encabezado en formato LaTeX')
 	args = parser.parse_args()
 	
-	main(args.nombre_archivo_entrada, args.nombre_archivo_salida)
+	main(args.ejercicios_parametrizados, args.titulo)
 
 
