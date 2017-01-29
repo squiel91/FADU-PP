@@ -1,4 +1,4 @@
-pregunta	El area de la plancha de largo {largo} m y ancho {ancho} m es:
+pregunta	El area de la plancha de contruccion de largo {largo} m y ancho {ancho} m es:
 respuesta	{correcto} m2
 distractor	{incorrecto1} m2
 distractor	{incorrecto2} m2
