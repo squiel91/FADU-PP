@@ -1,4 +1,9 @@
 import re
+import os
+import csv
+import shutil
+
+from instancia_prueba import InstanciaPrueba
 
 # una prueba es un encabezado y una coleccion de ejercicios
 
@@ -13,43 +18,36 @@ class Prueba:
 		self.instancias = []
 
 	def agregar_ejercicio(self, ejercicio):
-		self.ejercicio.append(ejercicio)
+		self.ejercicios.append(ejercicio)
 
 	def generar(self, tipo_exportacion):
-		# encabezado
-
-		for id in range(1, numero_instancias + 1):
-			self.instancias.append(Instancia(id, self.ejercicios))
 		
-		if tipo_exportacion == 'latex':
-			directorio = self.nombre
-			os.mkdir(directorio, 'w')
-			planilla_respuestas = []
+		InstanciaPrueba.titulo = self.titulo
+
+		for id in range(1, self.numero_instancias + 1):
+			self.instancias.append(InstanciaPrueba(id, self.ejercicios))
+		
+		directorio = self.nombre
+		if os.path.exists(directorio):
+			shutil.rmtree(directorio)
+		os.mkdir(directorio)
+		if tipo_exportacion == 'texto' or tipo_exportacion == 'latex':
+			planilla_respuestas = [['id'] + [i + 1 for i in range(len(self.ejercicios))]]
 			for prueba_individual in self.instancias:
-				prueba_individual.exportar_latex(ruta=directorio)
-				planilla_respuestas.append(prueba_individual.respuestas)
-				generar_archivo_respuestas(planilla_respuestas)
+				planilla_respuestas.append([prueba_individual.id] + prueba_individual.respuestas)
+				if tipo_exportacion == 'texto':
+					prueba_individual.exportar_texto(ruta=directorio)
+				else:
+					prueba_individual.exportar_latex(ruta=directorio)
+			self.generar_csv_respuestas(planilla_respuestas, ruta=directorio)
 		elif tipo_exportacion == 'eva':
 			pass
 		else:
 			raise Exception(tipo_exportacion + ' no se reconoce como un tipo de exportacion.')
 
-	class Instancia:
-		def __init__(self, id, ejercicios):
-			self.id = id
-			self.ejercicios = ejercicios.instanciar()
-			random.shuffle(self.ejercicios)
-			self.respuestas = []
-			for ejercicio in self.ejercicios:
-				self.respuestas.append(ejercicio.posicion_respuesta)
+	def generar_csv_respuestas(self, respuestas, ruta=''):
+		csv_file = open(os.path.join(ruta, 'respuestas_correctas.csv'), 'w')
+		csv_writer = csv.writer(csv_file, delimiter='\t')
+		csv_writer.writerows(respuestas)
+		csv_file.close()
 
-		def exportar_latex(ruta=''): # deberia incluir el encabezado aca
-			archivo = open(os.path.join(ruta, nombre_exportado + '.tex'), 'w')
-			archivo.write(self.ejercicio.problema + '\n\n')
-			archivo.write(self.ejercicio.respuesta + '\n')
-			for distractor in instancia.distractoras:
-				archivo.write(distractor + '\n')
-			archivo.close()
-
-		def exportar_xml_eva():
-			pass

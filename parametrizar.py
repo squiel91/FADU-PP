@@ -1,29 +1,27 @@
 import argparse
 import csv
-import pdb
 from ejercicio import Ejercicio
-
-ejercicio = Ejercicio()
+from prueba import Prueba
 
 def abrir_csv(nombre_archivo):
 	return csv.reader(open(nombre_archivo), delimiter='\t')
 
-def problema(cuerpo):
+def problema(cuerpo, ejercicio):
 	if len(cuerpo) != 1:
-		raise Exception('Pregunta mal especificada.')
+		raise Exception('Problema mal especificado.')
 	ejercicio.set_problema(cuerpo[0])
 
-def respuesta(cuerpo):
+def respuesta(cuerpo, ejercicio):
 	if len(cuerpo) != 1:
 		raise Exception('Respuesta mal especificada.')
 	ejercicio.set_respuesta(cuerpo[0])
 
-def distractor(cuerpo):
+def distractor(cuerpo, ejercicio):
 	if len(cuerpo) != 1:
 		raise Exception('Distractor mal especificado.')
-	ejercicio.add_distractor(cuerpo[0])
+	ejercicio.agregar_distractor(cuerpo[0])
 
-def parametro(cuerpo):
+def parametro(cuerpo, ejercicio):
 	if len(cuerpo) <= 1:
 		raise Exception('parametro mal especificado.')
 	nombre = cuerpo[0]
@@ -41,9 +39,9 @@ def parametro(cuerpo):
 			decimales = valor
 		else:
 			raise Exception('Parametro desconocido: ' + label)
-	ejercicio.add_parametro(nombre, minimo, maximo, decimales)
+	ejercicio.agregar_parametro(nombre, minimo, maximo, decimales)
 
-def computar(cuerpo):
+def computar(cuerpo, ejercicio):
 	if len(cuerpo) <= 1:
 		raise Exception('computar mal especificado.')
 	nombre = cuerpo[0]
@@ -54,26 +52,40 @@ def computar(cuerpo):
 			decimales = int(cuerpo[3])
 		else:
 			raise Exception('Parametro desconocido')
-	ejercicio.add_formula(nombre, computo, decimales)
+	ejercicio.agregar_formula(nombre, computo, decimales)
 
 
-def main(in_nombre_archivo, out_nombre_archivo):
-	lector_csv = abrir_csv(in_nombre_archivo)
-	for linea_seccion in lector_csv:
-		if len(linea_seccion) > 0:
-			tag = linea_seccion[0].lower()
-			cuerpo = linea_seccion[1:]
-			if tag == 'pregunta':
-				pregunta(cuerpo)
-			elif tag == 'respuesta':
-				respuesta(cuerpo)
-			elif tag == 'distractor':
-				distractor(cuerpo)
-			elif tag == 'parametro':
-				parametro(cuerpo)
-			elif tag == 'computar':
-				computar(cuerpo)
-	ejercicio.exportar
+def main(titulo, nombres_ejercicios, out_nombre_archivo, numero_instancias=0, texto=False, latex=False, eva=False):
+	prueba = Prueba(titulo, numero_instancias)
+	for nombre_ejercicio in nombres_ejercicios:
+		ejercicio = Ejercicio()
+		lector_csv = abrir_csv(nombre_ejercicio)
+		for linea_seccion in lector_csv:
+			if len(linea_seccion) > 0:
+				tag = linea_seccion[0].lower()
+				cuerpo = linea_seccion[1:]
+				if tag == 'pregunta':
+					problema(cuerpo, ejercicio)
+				elif tag == 'respuesta':
+					respuesta(cuerpo, ejercicio)
+				elif tag == 'distractor':
+					distractor(cuerpo, ejercicio)
+				elif tag == 'parametro':
+					parametro(cuerpo, ejercicio)
+				elif tag == 'computar':
+					computar(cuerpo, ejercicio)
+				elif tag == 'comentario':
+					pass
+				else:
+					raise Exception('No se reconoce el tag ' + tag)
+		prueba.agregar_ejercicio(ejercicio)
+	if texto:
+		prueba.generar('texto')
+	if latex:
+		prueba.generar('latex')
+	if eva:
+		prueba.generar('eva')
+
 
 
 if __name__ == "__main__": 
@@ -82,11 +94,19 @@ if __name__ == "__main__":
 	parser.add_argument('ejercicios_parametrizados', nargs='+', 
 						help='Lista de ejercicios parametrizados.')
 	parser.add_argument('--cantidad', type=int, help='Cantidad de pruebas')
+	parser.add_argument('--texto', action="store_true", help='Exportación a texto plano')
 	parser.add_argument('--pdf', action="store_true", help='Exportacion a PDF')
 	parser.add_argument('--eva', action="store_true", help='Para importar a entorno EVA')
 	parser.add_argument('--encabezado', help='Encabezado en formato LaTeX')
 	args = parser.parse_args()
 	
-	main(args.ejercicios_parametrizados, args.titulo)
+	main(
+		args.titulo, 
+		args.ejercicios_parametrizados, 
+		args.titulo, 
+		numero_instancias=args.cantidad, 
+		texto=args.texto, 
+		eva=args.eva, 
+		latex=args.pdf)
 
 
