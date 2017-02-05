@@ -51,10 +51,6 @@ class InstanciaEjercicio:
 				enum.add_item(NoEscape(opcion))
 		return ejercicio
 
-	def xml_eva(self, nombre_exportado):
-		pass
-
-
 def sustituir_variables(texto, variables):
 	semi_sustituido = texto
 	for nombre, valor in variables.items():

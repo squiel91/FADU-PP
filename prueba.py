@@ -22,16 +22,17 @@ class Prueba:
 
 	def generar(self, tipo_exportacion):
 		
-		InstanciaPrueba.titulo = self.titulo
+		if tipo_exportacion == 'texto' or tipo_exportacion == 'latex':	
+			directorio = self.nombre
+			if os.path.exists(directorio):
+				shutil.rmtree(directorio)
+			os.mkdir(directorio)
+			InstanciaPrueba.titulo = self.titulo
 
-		for id in range(1, self.numero_instancias + 1):
-			self.instancias.append(InstanciaPrueba(id, self.ejercicios))
+			for id in range(1, self.numero_instancias + 1):
+				self.instancias.append(InstanciaPrueba(id, self.ejercicios))
 		
-		directorio = self.nombre
-		if os.path.exists(directorio):
-			shutil.rmtree(directorio)
-		os.mkdir(directorio)
-		if tipo_exportacion == 'texto' or tipo_exportacion == 'latex':
+
 			planilla_respuestas = [['id'] + [i + 1 for i in range(len(self.ejercicios))]]
 			for prueba_individual in self.instancias:
 				planilla_respuestas.append([prueba_individual.id] + prueba_individual.respuestas)
@@ -41,13 +42,26 @@ class Prueba:
 					prueba_individual.exportar_latex(ruta=directorio)
 			self.generar_csv_respuestas(planilla_respuestas, ruta=directorio)
 		elif tipo_exportacion == 'eva':
-			pass
+			self.generar_eva_xml()
 		else:
 			raise Exception(tipo_exportacion + ' no se reconoce como un tipo de exportacion.')
+
+	def generar_eva_xml(self):
+		archivo_xml = open(self.nombre + '.xml', 'w')
+		archivo_xml.write('''<?xml version="1.0" encoding="UTF-8"?>
+			<quiz>
+			<question type="category">
+				<category>
+					<text>$course$/{}</text>
+				</category>
+			</question>'''.format(self.titulo))
+		for ejercicio in self.ejercicios:
+			archivo_xml.write(ejercicio.eva_xml(self.numero_instancias))
+		archivo_xml.write('</quiz>')
+		archivo_xml.close()
 
 	def generar_csv_respuestas(self, respuestas, ruta=''):
 		csv_file = open(os.path.join(ruta, 'respuestas_correctas.csv'), 'w')
 		csv_writer = csv.writer(csv_file, delimiter='\t')
 		csv_writer.writerows(respuestas)
 		csv_file.close()
-

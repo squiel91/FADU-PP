@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<quiz>
+			<question type="category">
+				<category>
+					<text>$course$/2da prueba EVA</text>
+				</category>
+			</question><question type="calculatedmulti"><name><text>con Latex</text></name><questiontext format="html"><text>El area de la plancha de contruccion con la formula \(x=\frac{1+y}{1+2z^2}\) de largo {largo} m y ancho {ancho} m es:</text></questiontext>
+			<generalfeedback format="html"><text/></generalfeedback>
+			<defaultgrade>1.0000000</defaultgrade>
+			<penalty>0.3333333</penalty>
+			<hidden>0</hidden>
+			<synchronize>0</synchronize>
+			<single>1</single>
+			<answernumbering>abc</answernumbering>
+			<shuffleanswers>1</shuffleanswers>
+			<correctfeedback><text>Correcta.</text></correctfeedback>
+			<partiallycorrectfeedback><text>Parcialmente correcto.</text></partiallycorrectfeedback>
+			<incorrectfeedback><text>Incorrecto.</text></incorrectfeedback>
+			<answer fraction="100">
+				<text>{={largo}*{ancho}} \(m^2\)</text>
+				<tolerance>0.01</tolerance>
+				<tolerancetype>1</tolerancetype>
+				<correctanswerformat>1</correctanswerformat>
+				<correctanswerlength>2</correctanswerlength>
+				<feedback format="html"><text/></feedback>
+			</answer>
+				<answer fraction="0">
+					<text>{={largo}*{largo}} \(m^2\)</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="html"><text/></feedback>
+				</answer>
+				<answer fraction="0">
+					<text>{={ancho}*{ancho}} \(m^2\)</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="html"><text/></feedback>
+				</answer><dataset_definitions>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>largo</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>10</text></minimum>
+				<maximum><text>5</text></maximum>
+				<decimals><text>2</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>0</number>
+				<value>5.87</value>
+			</dataset_item>
+			<dataset_item>
+				<number>1</number>
+				<value>9.13</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>6.55</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>ancho</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>3</text></minimum>
+				<maximum><text>2</text></maximum>
+				<decimals><text>1</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>0</number>
+				<value>2.2</value>
+			</dataset_item>
+			<dataset_item>
+				<number>1</number>
+				<value>2.6</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>2.4</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition></dataset_definitions></question><question type="calculatedmulti"><name><text>Ejercicio</text></name><questiontext format="html"><text>La multiplicacion de los numeros {a} y {b} es:</text></questiontext>
+			<generalfeedback format="html"><text/></generalfeedback>
+			<defaultgrade>1.0000000</defaultgrade>
+			<penalty>0.3333333</penalty>
+			<hidden>0</hidden>
+			<synchronize>0</synchronize>
+			<single>1</single>
+			<answernumbering>abc</answernumbering>
+			<shuffleanswers>1</shuffleanswers>
+			<correctfeedback><text>Correcta.</text></correctfeedback>
+			<partiallycorrectfeedback><text>Parcialmente correcto.</text></partiallycorrectfeedback>
+			<incorrectfeedback><text>Incorrecto.</text></incorrectfeedback>
+			<answer fraction="100">
+				<text>{={a}*{b}} es correcto</text>
+				<tolerance>0.01</tolerance>
+				<tolerancetype>1</tolerancetype>
+				<correctanswerformat>1</correctanswerformat>
+				<correctanswerlength>2</correctanswerlength>
+				<feedback format="html"><text/></feedback>
+			</answer>
+				<answer fraction="0">
+					<text>{={a}*{a}} es correcto</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="html"><text/></feedback>
+				</answer>
+				<answer fraction="0">
+					<text>{={b}*{b}} es correcto</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="html"><text/></feedback>
+				</answer><dataset_definitions>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>b</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>10</text></minimum>
+				<maximum><text>5</text></maximum>
+				<decimals><text>2</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>0</number>
+				<value>9.73</value>
+			</dataset_item>
+			<dataset_item>
+				<number>1</number>
+				<value>7.07</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>9.98</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>a</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>3</text></minimum>
+				<maximum><text>2</text></maximum>
+				<decimals><text>1</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>0</number>
+				<value>2.1</value>
+			</dataset_item>
+			<dataset_item>
+				<number>1</number>
+				<value>2.2</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>2.4</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition></dataset_definitions></question></quiz>

@@ -6,6 +6,11 @@ from prueba import Prueba
 def abrir_csv(nombre_archivo):
 	return csv.reader(open(nombre_archivo), delimiter='\t')
 
+def titulo(cuerpo, ejercicio):
+	if len(cuerpo) != 1:
+		raise Exception('Titulo mal especificado.')
+	ejercicio.set_titulo(cuerpo[0])
+
 def problema(cuerpo, ejercicio):
 	if len(cuerpo) != 1:
 		raise Exception('Problema mal especificado.')
@@ -55,8 +60,8 @@ def computar(cuerpo, ejercicio):
 	ejercicio.agregar_formula(nombre, computo, decimales)
 
 
-def main(titulo, nombres_ejercicios, out_nombre_archivo, numero_instancias=0, texto=False, latex=False, eva=False):
-	prueba = Prueba(titulo, numero_instancias)
+def main(titulo_prueba, nombres_ejercicios, out_nombre_archivo, numero_instancias=0, texto=False, latex=False, eva=False):
+	prueba = Prueba(titulo_prueba, numero_instancias)
 	for nombre_ejercicio in nombres_ejercicios:
 		ejercicio = Ejercicio()
 		lector_csv = abrir_csv(nombre_ejercicio)
@@ -64,7 +69,9 @@ def main(titulo, nombres_ejercicios, out_nombre_archivo, numero_instancias=0, te
 			if len(linea_seccion) > 0:
 				tag = linea_seccion[0].lower()
 				cuerpo = linea_seccion[1:]
-				if tag == 'pregunta':
+				if tag == 'titulo':
+					titulo(cuerpo, ejercicio)
+				elif tag == 'pregunta':
 					problema(cuerpo, ejercicio)
 				elif tag == 'respuesta':
 					respuesta(cuerpo, ejercicio)
