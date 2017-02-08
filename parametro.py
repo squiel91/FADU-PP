@@ -1,11 +1,11 @@
 import random
 
 class Parametro:
-	def __init__(self, nombre, minimo=0, maximo=100, decimales=2):
+	def __init__(self, nombre, minimo, maximo, decimales):
 		self.nombre = nombre
-		self.minimo = minimo
-		self.maximo = maximo
-		self.decimales = decimales
+		self.minimo = minimo or 0
+		self.maximo = maximo or 100
+		self.decimales = decimales or 2
 
 	def instanciar(self):
 		numero_random = random.uniform(self.minimo, self.maximo) # cuidado que asi como esta nunca devuelve maximo

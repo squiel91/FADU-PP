@@ -45,10 +45,10 @@ class InstanciaEjercicio:
 
 	def latex(self, numero_ejercicio):
 		ejercicio = Subsection('Ejercicio {}.'.format(numero_ejercicio))
-		ejercicio.append(NoEscape(self.problema))
+		ejercicio.append(NoEscape(self.problema.replace('\n', '\linebreak \n')))
 		with ejercicio.create(Enumerate(enumeration_symbol=r"\alph*)")) as enum:
 			for opcion in self.opciones:
-				enum.add_item(NoEscape(opcion))
+				enum.add_item(NoEscape(opcion.replace('\n', '\linebreak \n')))
 		return ejercicio
 
 def sustituir_variables(texto, variables):

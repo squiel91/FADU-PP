@@ -1,6 +1,5 @@
 import re
 from instancia_ejercicio import InstanciaEjercicio
-import pdb
 from formula import Formula
 from parametro import Parametro
 
@@ -23,7 +22,7 @@ class Ejercicio:
 	def set_problema(self, problema):
 		self.problema = problema
 
-	def set_respuesta(self, respuesta):
+	def set_solucion(self, respuesta):
 		self.respuesta = respuesta
 
 	def agregar_distractor(self, distractor):
@@ -63,7 +62,6 @@ class Ejercicio:
 		for formula in self.formulas:
 			formula_parcial = self.formulas[formula].computo
 			for parametro in self.parametros:
-				# pdb.set_trace()
 				formula_parcial = re.sub('(?:(?<=[\W])|(?<=^))' + parametro + '(?=[\W]|$)', '{' + parametro + '}', formula_parcial)
 			formula_eva = '{=' + formula_parcial + '}'
 			problema_eva = re.sub(simbolo_variable + formula + '(?=[\W]|$)', formula_eva, problema_eva)
@@ -73,9 +71,9 @@ class Ejercicio:
 		problema_eva = latex_to_eva_syntaxis(problema_eva)
 		respuesta_eva = latex_to_eva_syntaxis(respuesta_eva)
 		distractores_eva = [latex_to_eva_syntaxis(distractor_eva) for distractor_eva in distractores_eva]
-		ejercicio += '<questiontext format="html"><text>{}</text></questiontext>'.format(problema_eva)
+		ejercicio += '<questiontext format="moodle_auto_format"><text>{}</text></questiontext>'.format(problema_eva)
 		ejercicio += '''
-			<generalfeedback format="html"><text/></generalfeedback>
+			<generalfeedback format="moodle_auto_format"><text/></generalfeedback>
 			<defaultgrade>1.0000000</defaultgrade>
 			<penalty>0.3333333</penalty>
 			<hidden>0</hidden>
@@ -93,7 +91,7 @@ class Ejercicio:
 				<tolerancetype>1</tolerancetype>
 				<correctanswerformat>1</correctanswerformat>
 				<correctanswerlength>2</correctanswerlength>
-				<feedback format="html"><text/></feedback>
+				<feedback format="moodle_auto_format"><text/></feedback>
 			</answer>'''.format(respuesta_eva)
 		for distractor_eva in distractores_eva:
 			ejercicio += '''
@@ -103,7 +101,7 @@ class Ejercicio:
 					<tolerancetype>1</tolerancetype>
 					<correctanswerformat>1</correctanswerformat>
 					<correctanswerlength>2</correctanswerlength>
-					<feedback format="html"><text/></feedback>
+					<feedback format="moodle_auto_format"><text/></feedback>
 				</answer>'''.format(distractor_eva)
 		ejercicio += '<dataset_definitions>'
 		for parametro in self.parametros.values():

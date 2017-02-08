@@ -1,91 +1,94 @@
 import argparse
-import csv
+import unicodedata
 from ejercicio import Ejercicio
 from prueba import Prueba
 
-def abrir_csv(nombre_archivo):
-	return csv.reader(open(nombre_archivo), delimiter='\t')
+def remover_acentos(s):
+   return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn') 
 
-def titulo(cuerpo, ejercicio):
-	if len(cuerpo) != 1:
-		raise Exception('Titulo mal especificado.')
-	ejercicio.set_titulo(cuerpo[0])
+def abrir_contenedor(nombre_archivo):
+	archivo = open(nombre_archivo, 'r')
+	return [linea for linea in archivo]
 
-def problema(cuerpo, ejercicio):
-	if len(cuerpo) != 1:
-		raise Exception('Problema mal especificado.')
-	ejercicio.set_problema(cuerpo[0])
+def contiene_clave(linea, especifico=['titulo',
+										'problema', 
+										'solucion', 
+										'distractor', 
+										'comentario',
+										'parametro',
+										'computo',
+										'maximo',
+										'minimo',
+										'decimales',
+										'formula']):
+	if ':' not in linea:
+		return False
+	clave = remover_acentos(linea.split(':')[0].strip().lower())
+	return clave in especifico
 
-def respuesta(cuerpo, ejercicio):
-	if len(cuerpo) != 1:
-		raise Exception('Respuesta mal especificada.')
-	ejercicio.set_respuesta(cuerpo[0])
-
-def distractor(cuerpo, ejercicio):
-	if len(cuerpo) != 1:
-		raise Exception('Distractor mal especificado.')
-	ejercicio.agregar_distractor(cuerpo[0])
-
-def parametro(cuerpo, ejercicio):
-	if len(cuerpo) <= 1:
-		raise Exception('parametro mal especificado.')
-	nombre = cuerpo[0]
-	minimo = None
-	maximo = None
-	decimales = None
-	for i in range(1, len(cuerpo) // 2 + 1):
-		etiqueta = cuerpo[i * 2 - 1].lower()
-		valor = int(cuerpo[i * 2])
-		if etiqueta == 'minimo':
-			minimo = valor
-		elif etiqueta == 'maximo':
-			maximo = valor
-		elif etiqueta == 'decimales':
-			decimales = valor
-		else:
-			raise Exception('Parametro desconocido: ' + label)
-	ejercicio.agregar_parametro(nombre, minimo, maximo, decimales)
-
-def computar(cuerpo, ejercicio):
-	if len(cuerpo) <= 1:
-		raise Exception('computar mal especificado.')
-	nombre = cuerpo[0]
-	computo = cuerpo[1]
-	decimales = None
-	if len(cuerpo) > 2:
-		if cuerpo[2].lower() == 'decimales':
-			decimales = int(cuerpo[3])
-		else:
-			raise Exception('Parametro desconocido')
-	ejercicio.agregar_formula(nombre, computo, decimales)
-
+def clave_valor(lineas):
+	linea = lineas.pop(0)
+	clave = remover_acentos(linea.split(':')[0].strip().lower())
+	valor = ''.join(linea.split(':')[1:]).lstrip()
+	while lineas and not contiene_clave(lineas[0]):
+		linea_pregunta = lineas.pop(0)
+		valor += linea_pregunta
+	return clave, valor.strip()
 
 def main(titulo_prueba, nombres_ejercicios, out_nombre_archivo, numero_instancias=0, texto=False, latex=False, eva=False):
 	prueba = Prueba(titulo_prueba, numero_instancias)
 	for nombre_ejercicio in nombres_ejercicios:
 		ejercicio = Ejercicio()
-		lector_csv = abrir_csv(nombre_ejercicio)
-		for linea_seccion in lector_csv:
-			if len(linea_seccion) > 0:
-				tag = linea_seccion[0].lower()
-				cuerpo = linea_seccion[1:]
-				if tag == 'titulo':
-					titulo(cuerpo, ejercicio)
-				elif tag == 'pregunta':
-					problema(cuerpo, ejercicio)
-				elif tag == 'respuesta':
-					respuesta(cuerpo, ejercicio)
-				elif tag == 'distractor':
-					distractor(cuerpo, ejercicio)
-				elif tag == 'parametro':
-					parametro(cuerpo, ejercicio)
-				elif tag == 'computar':
-					computar(cuerpo, ejercicio)
-				elif tag == 'comentario':
+		lineas = abrir_contenedor(nombre_ejercicio)
+		while lineas:
+			if contiene_clave(lineas[0]):
+				clave, valor = clave_valor(lineas)
+				if clave == 'titulo': ejercicio.set_titulo(valor)
+				elif clave == 'problema': ejercicio.set_problema(valor)
+				elif clave == 'solucion': ejercicio.set_solucion(valor)
+				elif clave == 'distractor':	ejercicio.agregar_distractor(valor)
+				elif clave == 'parametro':
+					nombre = valor
+					minimo = None
+					maximo = None
+					decimales = None
+					subclaves_posibles = ['maximo', 'minimo', 'decimales']
+					while lineas and contiene_clave(lineas[0], subclaves_posibles):
+						subclave, valor = clave_valor(lineas)
+						if subclave == 'minimo':
+							subclaves_posibles.remove('minimo')
+							minimo = int(valor)
+						elif subclave == 'maximo':
+							subclaves_posibles.remove('maximo')
+							maximo = int(valor)
+						elif subclave == 'decimales':
+							subclaves_posibles.remove('decimales')
+							decimales = int(valor)
+					ejercicio.agregar_parametro(nombre, minimo, maximo, decimales)
+				elif clave == 'computo':
+					subclaves_posibles = ['formula', 'decimales']
+					nombre = valor
+					formula = None
+					decimales = None
+					while lineas and contiene_clave(lineas[0], subclaves_posibles):
+						subclave, valor = clave_valor(lineas)
+						if subclave == 'formula':
+							subclaves_posibles.remove('formula')
+							formula = valor
+						elif subclave == 'decimales':
+							subclaves_posibles.remove('decimales')
+							decimales = int(valor)
+					if not formula: raise Exception('No se especifico formula de ' + nombre)
+					ejercicio.agregar_formula(nombre, formula, decimales) # se deberia llamar agregar computo
+				elif clave == 'comentario':	
 					pass
 				else:
-					raise Exception('No se reconoce el tag ' + tag)
+					print('ADVERTENCIA: No se reconoce la clave {}.'.format(clave))
+			else:
+				lineas.pop(0)
 		prueba.agregar_ejercicio(ejercicio)
+	
 	if texto:
 		prueba.generar('texto')
 	if latex:
@@ -93,15 +96,13 @@ def main(titulo_prueba, nombres_ejercicios, out_nombre_archivo, numero_instancia
 	if eva:
 		prueba.generar('eva')
 
-
-
 if __name__ == "__main__": 
 	parser = argparse.ArgumentParser(description="Crea prueba a partir de los ejercicios parametrizados")
 	parser.add_argument('titulo', help='Titulo de la prueba')
 	parser.add_argument('ejercicios_parametrizados', nargs='+', 
 						help='Lista de ejercicios parametrizados.')
 	parser.add_argument('--cantidad', type=int, help='Cantidad de pruebas')
-	parser.add_argument('--texto', action="store_true", help='Exportación a texto plano')
+	parser.add_argument('--texto', action="store_true", help='Exportacion a texto plano')
 	parser.add_argument('--pdf', action="store_true", help='Exportacion a PDF')
 	parser.add_argument('--eva', action="store_true", help='Para importar a entorno EVA')
 	parser.add_argument('--encabezado', help='Encabezado en formato LaTeX')

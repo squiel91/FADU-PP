@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+			<quiz>
+			<question type="category">
+				<category>
+					<text>$course$/ultimo</text>
+				</category>
+			</question><question type="calculatedmulti"><name><text>hola soy el titulo</text></name><questiontext format="moodle_auto_format"><text>El area de la plancha de contruccion con la formula \(x=\frac{1+y}{1+2z^2}\) de largo {largo} m y ancho {ancho} m.
+
+
+Como ayuda se sabe que la altura es muy elevada</text></questiontext>
+			<generalfeedback format="moodle_auto_format"><text/></generalfeedback>
+			<defaultgrade>1.0000000</defaultgrade>
+			<penalty>0.3333333</penalty>
+			<hidden>0</hidden>
+			<synchronize>0</synchronize>
+			<single>1</single>
+			<answernumbering>abc</answernumbering>
+			<shuffleanswers>1</shuffleanswers>
+			<correctfeedback><text>Correcta.</text></correctfeedback>
+			<partiallycorrectfeedback><text>Parcialmente correcto.</text></partiallycorrectfeedback>
+			<incorrectfeedback><text>Incorrecto.</text></incorrectfeedback>
+			<answer fraction="100">
+				<text>solu respuesta {={largo} * {ancho}}</text>
+				<tolerance>0.01</tolerance>
+				<tolerancetype>1</tolerancetype>
+				<correctanswerformat>1</correctanswerformat>
+				<correctanswerlength>2</correctanswerlength>
+				<feedback format="moodle_auto_format"><text/></feedback>
+			</answer>
+				<answer fraction="0">
+					<text>dist1</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="moodle_auto_format"><text/></feedback>
+				</answer>
+				<answer fraction="0">
+					<text>Hello</text>
+					<tolerance>0.01</tolerance>
+					<tolerancetype>1</tolerancetype>
+					<correctanswerformat>1</correctanswerformat>
+					<correctanswerlength>2</correctanswerlength>
+					<feedback format="moodle_auto_format"><text/></feedback>
+				</answer><dataset_definitions>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>ancho</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>0</text></minimum>
+				<maximum><text>100</text></maximum>
+				<decimals><text>2</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>1</number>
+				<value>62.01</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>91.71</value>
+			</dataset_item>
+			<dataset_item>
+				<number>3</number>
+				<value>34.6</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition>
+			<dataset_definition>
+				<status><text>private</text></status>
+				<name><text>largo</text></name>
+				<type>calculatedsimple</type>
+				<distribution><text>uniform</text></distribution>
+				<minimum><text>0</text></minimum>
+				<maximum><text>50</text></maximum>
+				<decimals><text>3</text></decimals>
+				<itemcount>3</itemcount>
+				<dataset_items>
+			<dataset_item>
+				<number>1</number>
+				<value>10.469</value>
+			</dataset_item>
+			<dataset_item>
+				<number>2</number>
+				<value>35.284</value>
+			</dataset_item>
+			<dataset_item>
+				<number>3</number>
+				<value>31.538</value>
+			</dataset_item>
+				</dataset_items>
+				<number_of_items>3</number_of_items>
+			</dataset_definition></dataset_definitions></question></quiz>
